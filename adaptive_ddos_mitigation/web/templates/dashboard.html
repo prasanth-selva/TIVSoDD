@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adaptive DDoS Mitigation System - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <h1>Adaptive DDoS Mitigation System</h1>
+            </div>
+            <div class="header-status">
+                <span id="connection-status" class="status-badge status-disconnected">
+                    <i class="fas fa-circle"></i> Disconnected
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav class="nav">
+                <a href="#dashboard" class="nav-item active" data-tab="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#detection" class="nav-item" data-tab="detection">
+                    <i class="fas fa-search"></i>
+                    <span>Detection</span>
+                </a>
+                <a href="#mitigation" class="nav-item" data-tab="mitigation">
+                    <i class="fas fa-shield-virus"></i>
+                    <span>Mitigation</span>
+                </a>
+                <a href="#signatures" class="nav-item" data-tab="signatures">
+                    <i class="fas fa-fingerprint"></i>
+                    <span>Signatures</span>
+                </a>
+                <a href="#logs" class="nav-item" data-tab="logs">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Activity Logs</span>
+                </a>
+                <a href="#config" class="nav-item" data-tab="config">
+                    <i class="fas fa-cog"></i>
+                    <span>Configuration</span>
+                </a>
+            </nav>
+
+            <!-- System Control -->
+            <div class="system-control">
+                <h3>System Control</h3>
+                <button id="btn-initialize" class="btn btn-primary">
+                    <i class="fas fa-power-off"></i> Initialize
+                </button>
+                <button id="btn-train" class="btn btn-secondary" disabled>
+                    <i class="fas fa-graduation-cap"></i> Train
+                </button>
+                <button id="btn-start" class="btn btn-success" disabled>
+                    <i class="fas fa-play"></i> Start Simulation
+                </button>
+                <button id="btn-stop" class="btn btn-danger" disabled>
+                    <i class="fas fa-stop"></i> Stop
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="tab-dashboard" class="tab-content active">
+                <div class="page-header">
+                    <h2>Real-Time Dashboard</h2>
+                    <p>Monitor DDoS attacks and system performance in real-time</p>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon kpi-primary">
+                            <i class="fas fa-network-wired"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3>Total Windows</h3>
+                            <p class="kpi-value" id="kpi-windows">0</p>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon kpi-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3>Anomalies Detected</h3>
+                            <p class="kpi-value" id="kpi-anomalies">0</p>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon kpi-info">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3>Detection Rate</h3>
+                            <p class="kpi-value" id="kpi-detection-rate">0%</p>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon kpi-warning">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <h3>Packets Dropped</h3>
+                            <p class="kpi-value" id="kpi-dropped">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <h3>Anomaly Score Timeline</h3>
+                        <canvas id="anomalyChart"></canvas>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Mitigation Actions</h3>
+                        <canvas id="mitigationChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- System Status -->
+                <div class="status-grid">
+                    <div class="status-card">
+                        <h3>System Status</h3>
+                        <div class="status-items">
+                            <div class="status-item">
+                                <span>Training Status:</span>
+                                <span id="status-trained" class="badge badge-secondary">Not Trained</span>
+                            </div>
+                            <div class="status-item">
+                                <span>Simulation:</span>
+                                <span id="status-running" class="badge badge-secondary">Stopped</span>
+                            </div>
+                            <div class="status-item">
+                                <span>Active Signatures:</span>
+                                <span id="status-signatures" class="badge badge-info">0</span>
+                            </div>
+                            <div class="status-item">
+                                <span>Active Rules:</span>
+                                <span id="status-rules" class="badge badge-info">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detection Tab -->
+            <div id="tab-detection" class="tab-content">
+                <div class="page-header">
+                    <h2>Detection Analysis</h2>
+                    <p>Detailed view of anomaly detection and ML model performance</p>
+                </div>
+
+                <div class="detection-grid">
+                    <div class="detection-card">
+                        <h3>Recent Detections</h3>
+                        <div id="detection-history" class="detection-history">
+                            <p class="no-data">No detection data available</p>
+                        </div>
+                    </div>
+
+                    <div class="detection-card">
+                        <h3>Detection Statistics</h3>
+                        <canvas id="detectionStatsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mitigation Tab -->
+            <div id="tab-mitigation" class="tab-content">
+                <div class="page-header">
+                    <h2>Mitigation Control</h2>
+                    <p>Active mitigation rules and enforcement status</p>
+                </div>
+
+                <div id="mitigation-rules" class="rules-container">
+                    <p class="no-data">No active mitigation rules</p>
+                </div>
+            </div>
+
+            <!-- Signatures Tab -->
+            <div id="tab-signatures" class="tab-content">
+                <div class="page-header">
+                    <h2>Attack Signatures</h2>
+                    <p>Auto-generated attack fingerprints and pattern matching</p>
+                </div>
+
+                <div id="signatures-list" class="signatures-container">
+                    <p class="no-data">No signatures generated yet</p>
+                </div>
+            </div>
+
+            <!-- Logs Tab -->
+            <div id="tab-logs" class="tab-content">
+                <div class="page-header">
+                    <h2>Activity Logs</h2>
+                    <p>Real-time system activity and events</p>
+                </div>
+
+                <div class="logs-container">
+                    <div id="activity-logs" class="logs-content">
+                        <!-- Logs will be added here dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Config Tab -->
+            <div id="tab-config" class="tab-content">
+                <div class="page-header">
+                    <h2>System Configuration</h2>
+                    <p>Configure detection thresholds and system parameters</p>
+                </div>
+
+                <div class="config-section">
+                    <h3>Simulation Parameters</h3>
+                    <div class="config-form">
+                        <div class="form-group">
+                            <label>Duration (seconds):</label>
+                            <input type="number" id="config-duration" value="60" min="10" max="300">
+                        </div>
+                        <div class="form-group">
+                            <label>Attack Start (seconds):</label>
+                            <input type="number" id="config-attack-start" value="20" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Attack Duration (seconds):</label>
+                            <input type="number" id="config-attack-duration" value="15" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Base Rate (pps):</label>
+                            <input type="number" id="config-base-rate" value="1000" min="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Attack Multiplier:</label>
+                            <input type="number" id="config-attack-multiplier" value="10" min="2" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Training Windows:</label>
+                            <input type="number" id="config-train-windows" value="50" min="10" max="200">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

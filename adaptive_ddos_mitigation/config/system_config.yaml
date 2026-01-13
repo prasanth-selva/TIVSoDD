@@ -1,0 +1,132 @@
+# Adaptive DDoS Mitigation System - Configuration
+
+# Traffic Capture Settings
+traffic_capture:
+  window_size_sec: 5  # Sliding window duration
+  window_overlap: 0.5  # 50% overlap
+  max_packets_per_window: 100000
+  capture_interface: "eth0"  # For live capture
+  pcap_path: null  # Path to PCAP file if using offline mode
+
+# Feature Engineering
+feature_engineering:
+  enable_temporal: true
+  enable_statistical: true
+  enable_protocol: true
+  enable_flow: true
+  normalization: "minmax"  # Options: minmax, standard, robust
+
+# Statistical Anomaly Detection (Fast Gate)
+statistical_detector:
+  enabled: true
+  packet_rate_threshold: 10000  # packets/sec
+  burst_threshold: 3.0  # standard deviations
+  entropy_min_threshold: 1.5  # bits
+  variance_threshold: 2.5  # standard deviations
+
+# ML Ensemble Configuration
+ml_ensemble:
+  models:
+    isolation_forest:
+      enabled: true
+      n_estimators: 100
+      contamination: 0.05
+      max_samples: 256
+      
+    autoencoder:
+      enabled: true
+      encoding_dim: 16
+      epochs: 50
+      batch_size: 32
+      validation_split: 0.2
+      reconstruction_threshold: 0.1
+      
+    time_series:
+      enabled: true
+      method: "ewma"  # Options: ewma, moving_avg
+      alpha: 0.3  # EWMA smoothing factor
+      
+  voting:
+    method: "weighted"  # Options: majority, weighted, unanimous
+    weights:
+      isolation_forest: 0.4
+      autoencoder: 0.4
+      time_series: 0.2
+    confidence_threshold: 0.65
+
+# Adaptive Thresholds
+adaptive_thresholds:
+  enabled: true
+  baseline_window: 300  # seconds
+  update_interval: 60  # seconds
+  sensitivity: 1.0  # Multiplier for threshold adaptation
+
+# Auto-Signature Generation
+signature_generation:
+  enabled: true
+  min_attack_duration: 10  # seconds
+  signature_ttl: 300  # Time to live in seconds
+  max_signatures: 100
+  features_to_fingerprint:
+    - packet_size_distribution
+    - protocol_ratios
+    - rate_characteristics
+    - timing_patterns
+
+# Adaptive Mitigation
+mitigation:
+  strategy: "graduated"  # Options: graduated, immediate, delayed
+  levels:
+    - name: "allow"
+      threshold: 0.3
+      action: "monitor"
+    - name: "rate_limit"
+      threshold: 0.5
+      action: "rate_limit"
+      rate_limit_pps: 5000
+    - name: "shape"
+      threshold: 0.7
+      action: "traffic_shaping"
+      shaping_rate: 2000
+    - name: "block"
+      threshold: 0.9
+      action: "drop"
+  
+  rollback:
+    enabled: true
+    evaluation_interval: 30  # seconds
+    normalize_threshold: 0.2  # Anomaly score below this triggers rollback
+    grace_period: 60  # seconds before allowing rollback
+
+# Explainability
+explainability:
+  enabled: true
+  top_features: 5
+  generate_text_explanation: true
+  log_decisions: true
+  visualization: true
+
+# Logging & Monitoring
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  log_dir: "logs"
+  metrics_dir: "metrics"
+  save_interval: 60  # seconds
+
+# Performance
+performance:
+  max_workers: 4
+  enable_multiprocessing: false  # For production use
+  memory_limit_mb: 2048
+
+# Evaluation & Benchmarking
+evaluation:
+  metrics:
+    - "detection_latency"
+    - "mitigation_latency"
+    - "false_positive_rate"
+    - "false_negative_rate"
+    - "packet_drop_accuracy"
+    - "throughput"
+  output_dir: "evaluation_results"
+  generate_plots: true

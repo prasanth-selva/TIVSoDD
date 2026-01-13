@@ -1,0 +1,30 @@
+2026-01-10 11:57:54,097 - adaptive_ddos_system - INFO - Initializing Adaptive DDoS Mitigation System
+2026-01-10 11:57:54,098 - core.mitigation_controller - INFO - Mitigation controller initialized with graduated strategy
+2026-01-10 11:57:54,098 - adaptive_ddos_system - INFO - All components initialized
+2026-01-10 11:57:54,098 - adaptive_ddos_system - INFO - System initialization complete
+2026-01-10 11:57:54,098 - adaptive_ddos_system - INFO - Starting training phase
+2026-01-10 11:57:54,098 - adaptive_ddos_system - INFO - Training on simulated normal traffic (10 windows)
+2026-01-10 11:57:54,098 - core.traffic_aggregator - INFO - Starting simulated traffic stream
+2026-01-10 11:58:24,106 - adaptive_ddos_system - INFO - Collected 10 training samples
+2026-01-10 11:58:24,107 - core.feature_engineering - INFO - Scaler fitted on 10 samples
+2026-01-10 11:58:24,240 - models.ml_ensemble - INFO - Autoencoder built: 33 -> 16 -> 33
+2026-01-10 11:58:24,240 - models.ml_ensemble - INFO - ML Ensemble initialized with 3 models
+2026-01-10 11:58:24,240 - models.ml_ensemble - INFO - Training ensemble on 10 samples
+2026-01-10 11:58:24,349 - models.ml_ensemble - INFO - Isolation Forest trained on 10 samples
+2026-01-10 11:58:27,925 - models.ml_ensemble - INFO - Autoencoder trained on 10 samples, final loss: 0.0404
+2026-01-10 11:58:27,926 - models.ml_ensemble - INFO - Ensemble training complete
+2026-01-10 11:58:27,926 - adaptive_ddos_system - INFO - Training complete
+2026-01-10 11:58:27,927 - adaptive_ddos_system - INFO - Starting simulation: 10.0s total, attack at 5.0s for 3.0s
+2026-01-10 11:58:27,927 - core.traffic_aggregator - INFO - Starting simulated traffic stream
+2026-01-10 11:58:33,021 - core.mitigation_controller - INFO - Created mitigation rule rule_1_1768026513: monitor
+2026-01-10 11:58:33,021 - core.explainability - INFO - Explanation generated: Anomaly detected (score: 0.54) - Primary indicator: syn_ratio. Action: monitor
+2026-01-10 11:58:33,021 - adaptive_ddos_system - WARNING - ANOMALY DETECTED - Score: 0.54, Action: monitor
+2026-01-10 11:58:35,510 - core.mitigation_controller - INFO - Created mitigation rule rule_2_1768026515: monitor
+2026-01-10 11:58:35,510 - core.explainability - INFO - Explanation generated: Anomaly detected (score: 0.93) - Primary indicator: src_dst_ratio. Action: monitor
+2026-01-10 11:58:35,510 - adaptive_ddos_system - WARNING - ANOMALY DETECTED - Score: 0.93, Action: monitor
+2026-01-10 11:58:37,985 - core.mitigation_controller - INFO - Created mitigation rule rule_3_1768026517: monitor
+2026-01-10 11:58:37,985 - core.explainability - INFO - Explanation generated: Anomaly detected (score: 0.71) - Primary indicator: src_dst_ratio. Action: monitor
+2026-01-10 11:58:37,985 - core.signature_generator - INFO - Generating signature from 3 attack windows
+2026-01-10 11:58:38,001 - core.signature_generator - INFO - Created signature sig_7dcb0ea7b2bb (confidence: 0.70)
+2026-01-10 11:58:38,006 - adaptive_ddos_system - WARNING - ANOMALY DETECTED - Score: 0.71, Action: monitor
+2026-01-10 11:58:38,006 - adaptive_ddos_system - INFO - Simulation complete. Processed 3 windows
